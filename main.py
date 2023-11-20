@@ -1,5 +1,9 @@
 import cv2
 import numpy as np
+import time
+
+# Initialize the start time
+start_time = time.time()
 
 # Load YOLO
 net = cv2.dnn.readNet("./models/yolov4-tiny.weights", "./models/yolov4-tiny.cfg")
@@ -13,12 +17,6 @@ with open("coco.names", "r") as f:
 # Initialize video
 video_path = "./data/video.mp4"
 cap = cv2.VideoCapture(video_path)
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
-output_video_name = "output.avi"
-
-# Define codec and create VideoWriter object for output (if needed)
-out = cv2.VideoWriter(output_video_name, cv2.VideoWriter_fourcc(*'XVID'), 20.0, (frame_width, frame_height))
 
 while True:
     ret, frame = cap.read()
@@ -61,4 +59,5 @@ while True:
         if i in indexes:
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
-            print(f"Detected: {label} at Position: ({x}, {y}, {w}, {h})")
+            elapsed_time = time.time() - start_time
+            print(f"{elapsed_time:.2f} seconds - Detected: {label} at Position: ({x}, {y}, {w}, {h})")
