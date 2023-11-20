@@ -5,12 +5,19 @@ import numpy as np
 net = cv2.dnn.readNet("./models/yolov3.weights", "./models/yolov3.cfg")
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers().flatten()]
-classes = []
+
+# Load the COCO class labels
 with open("coco.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
-# Initialize the video
-cap = cv2.VideoCapture("./data/video.mp4")  # Replace with your video path
+# Initialize video
+video_path = "./data/video.mp4"
+cap = cv2.VideoCapture(video_path)
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+
+# Define codec and create VideoWriter object for output (if needed)
+out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 20.0, (frame_width, frame_height))
 
 while True:
     ret, frame = cap.read()
@@ -27,8 +34,8 @@ while True:
     class_ids = []
     confidences = []
     boxes = []
-    for out in outs:
-        for detection in out:
+    for layer_output in outs:  # Changed 'out' to 'layer_output' to avoid conflict
+        for detection in layer_output:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
@@ -49,21 +56,16 @@ while True:
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
-    # Drawing rectangles with labels
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
-            color = np.random.uniform(0, 255, 3)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            print("Detected: ", label)
-            cv2.putText(frame, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 1, color, 1)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(frame, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
 
-    cv2.imshow("Video", frame)
+    # Save the resulting frame
+    out.write(frame)
 
-    # Break the loop when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
+# Release everything if job is finished
 cap.release()
-cv2.destroyAllWindows()
+out.release()
