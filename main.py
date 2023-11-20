@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load YOLO
-net = cv2.dnn.readNet("./models/yolov3.weights", "models/yolov3.cfg")
+net = cv2.dnn.readNet("./models/yolov3.weights", "./models/yolov3.cfg")
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers().flatten()]
 classes = []
@@ -56,6 +56,7 @@ while True:
             label = str(classes[class_ids[i]])
             color = np.random.uniform(0, 255, 3)
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+            print("Detected: ", label)
             cv2.putText(frame, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 1, color, 1)
 
     cv2.imshow("Video", frame)
