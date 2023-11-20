@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load YOLO
-net = cv2.dnn.readNet("./models/yolov3.weights", "./models/yolov3.cfg")
+net = cv2.dnn.readNet("./models/yolov4-tiny.weights", "./models/yolov4-tiny.cfg")
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers().flatten()]
 
@@ -15,9 +15,10 @@ video_path = "./data/video.mp4"
 cap = cv2.VideoCapture(video_path)
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
+output_video_name = "output.avi"
 
 # Define codec and create VideoWriter object for output (if needed)
-out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 20.0, (frame_width, frame_height))
+out = cv2.VideoWriter(output_video_name, cv2.VideoWriter_fourcc(*'XVID'), 20.0, (frame_width, frame_height))
 
 while True:
     ret, frame = cap.read()
@@ -69,3 +70,5 @@ while True:
 # Release everything if job is finished
 cap.release()
 out.release()
+
+print("The output video is {}".format(output_video_name))
