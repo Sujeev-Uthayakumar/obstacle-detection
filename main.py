@@ -35,8 +35,8 @@ while True:
     class_ids = []
     confidences = []
     boxes = []
-    for layer_output in outs:  # Changed 'out' to 'layer_output' to avoid conflict
-        for detection in layer_output:
+    for out in outs:
+        for detection in out:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
@@ -61,14 +61,4 @@ while True:
         if i in indexes:
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            cv2.putText(frame, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 1)
-
-    # Save the resulting frame
-    out.write(frame)
-
-# Release everything if job is finished
-cap.release()
-out.release()
-
-print("The output video is {}".format(output_video_name))
+            print(f"Detected: {label} at Position: ({x}, {y}, {w}, {h})")
